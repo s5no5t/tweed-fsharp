@@ -100,8 +100,12 @@ module Tweed =
         }
 
     [<Fact>]
-    let ``postCreateTweedHandler creates Tweed`` () =
+    let ``postCreateTweedHandler redirects to /`` () =
         let ctx = Substitute.For<HttpContext>()
+        let response = Substitute.For<HttpResponse>()
+        ctx.Response.Returns(response) |> ignore
+
+        //ctx.Response <- Substitute.For<HttpResponse>()
         let documentStore = Substitute.For<Raven.Client.Documents.IDocumentStore>()
 
         let handler = HttpHandlers.Tweed.postCreateTweedHandler documentStore
@@ -110,7 +114,7 @@ module Tweed =
             let! result = handler next ctx
 
             match result with
-            | Some ctx -> ()
+            | Some ctx -> response.Received().Redirect("/", false)
             | None -> assertFail "Unexpected None result"
         }
 
