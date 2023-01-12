@@ -3,6 +3,7 @@ module Tweed.Web.HttpHandlers
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http
 open Giraffe
+open Giraffe.EndpointRouting
 open Tweed.Data
 open ViewModels
 
@@ -13,47 +14,27 @@ module Index =
         let view = Views.Index.indexGetView indexViewModel
         htmlView view
 
-    let handlers = GET >=> indexGetHandler
-
 module Tweed =
     [<CLIMutable>]
     type CreateTweedDto = { Text: string }
 
-    let storeTweedHandler session =
+    let tweedPostHandler documentStore =
         fun (next: HttpFunc) (ctx: HttpContext) ->
             task {
                 let! tweedDto = ctx.BindFormAsync<CreateTweedDto>()
-                
+                let session = RavenDb.createSession documentStore
                 do! session |> Queries.storeTweed tweedDto.Text
-                
-                return! next ctx
-            }
+                do! RavenDb.saveChangesAsync session
 
-    let tweedPostHandler session = storeTweedHandler session >=> redirectTo false "/"
+                return! (redirectTo false "/") next ctx
+            }
 
     let createTweedGetHandler =
         let view = Views.Tweed.createTweedView None
         htmlView view
 
-    let handlers session =
-        route "/create"
-        >=> choose [ POST >=> tweedPostHandler session; GET >=> createTweedGetHandler ]
-
-module Fallback =
-    let notFoundHandler = setStatusCode 404 >=> text "Not Found"
-
-
-let handler session: HttpHandler =
-    choose
-        [ subRoute "/tweed" (Tweed.handlers session)
-          route "/" >=> Index.handlers
-          Fallback.notFoundHandler ]
-
-let sessionHandler documentStore: HttpHandler =
-    fun next ctx ->
-        task {
-            let session = RavenDb.createSession documentStore
-            let result = (handler session) next ctx
-            do! RavenDb.saveChangesAsync session
-            return! result
-        }
+let endpoints documentStore =
+    [ GET
+          [ route "/" Index.indexGetHandler
+            route "/tweed/create" Tweed.createTweedGetHandler ]
+      POST [ route "/tweed/create" (Tweed.tweedPostHandler documentStore) ] ]

@@ -9,9 +9,8 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
+open Giraffe.EndpointRouting
 open Tweed.Data
-
-let webApp documentStore = HttpHandlers.sessionHandler documentStore
 
 // ---------------------------------
 // Error handler
@@ -34,15 +33,21 @@ let configureCors (builder: CorsPolicyBuilder) =
 
 let configureApp (app: IApplicationBuilder) =
     let env = app.ApplicationServices.GetService<IWebHostEnvironment>()
-    
+
     let documentStore = RavenDb.documentStore [ "http://localhost:8080" ] "TweedFsharp"
+    let endpoints = HttpHandlers.endpoints documentStore
 
     (match env.IsDevelopment() with
      | true -> app.UseDeveloperExceptionPage()
      | false -> app.UseGiraffeErrorHandler(errorHandler).UseHttpsRedirection())
+    |> ignore
+
+    app
         .UseCors(configureCors)
         .UseStaticFiles()
-        .UseGiraffe(webApp documentStore)
+        .UseRouting()
+        .UseEndpoints(fun e -> e.MapGiraffeEndpoints(endpoints))
+    |> ignore
 
 let configureServices (services: IServiceCollection) =
     services.AddCors() |> ignore
