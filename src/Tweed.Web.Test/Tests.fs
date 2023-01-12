@@ -79,6 +79,26 @@ module Tweed =
             Assert.Equal(HttpStatusCode.OK, response.StatusCode)
         }
 
+    [<Fact>]
+    let ``POST /tweed/create doesn't return 404 NOT FOUND`` () =
+        task {
+            // -- Arrange
+            let webBuilder =
+                WebHostBuilder()
+                    .ConfigureServices(App.configureServices)
+                    .Configure(Action<IApplicationBuilder> App.configureApp)
+
+            let testServer = new TestServer(webBuilder)
+
+            let client = testServer.CreateClient()
+
+            // -- Act
+            let! response = client.PostAsync("/tweed/create", null)
+
+            // -- Assert
+            Assert.NotEqual(HttpStatusCode.NotFound, response.StatusCode)
+        }
+
 // TODO
 // [<Fact>]
 // let ``POST /tweed/create returns 200 OK`` () =
