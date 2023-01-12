@@ -49,20 +49,11 @@ let handler session: HttpHandler =
           route "/" >=> Index.handlers
           Fallback.notFoundHandler ]
 
-let saveHandler session: HttpHandler =
-    fun next ctx ->
-        task {
-            printfn "Saving changes"
-            do! RavenDb.saveChangesAsync session
-            return! next ctx
-        }
-    
-
-let sessionWrapper documentStore: HttpHandler =
+let sessionHandler documentStore: HttpHandler =
     fun next ctx ->
         task {
             let session = RavenDb.createSession documentStore
-            let result = ((handler session) next ctx)
-            let handler = saveHandler session
-            return! handler >=> (handler session) next ctx
+            let result = (handler session) next ctx
+            do! RavenDb.saveChangesAsync session
+            return! result
         }

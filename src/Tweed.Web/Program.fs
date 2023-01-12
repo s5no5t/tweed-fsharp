@@ -11,7 +11,7 @@ open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open Tweed.Data
 
-let webApp documentStore = HttpHandlers.sessionWrapper documentStore
+let webApp documentStore = HttpHandlers.sessionHandler documentStore
 
 // ---------------------------------
 // Error handler
