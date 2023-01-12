@@ -18,7 +18,7 @@ module Tweed =
     [<CLIMutable>]
     type CreateTweedDto = { Text: string }
 
-    let tweedPostHandler documentStore =
+    let postCreateTweedHandler documentStore =
         fun (next: HttpFunc) (ctx: HttpContext) ->
             task {
                 let! tweedDto = ctx.BindFormAsync<CreateTweedDto>()
@@ -29,12 +29,13 @@ module Tweed =
                 return! (redirectTo false "/") next ctx
             }
 
-    let createTweedGetHandler =
+    let getCreateTweedHandler =
         let view = Views.Tweed.createTweedView None
         htmlView view
 
 let endpoints documentStore =
-    [ GET
-          [ route "/" Index.indexGetHandler
-            route "/tweed/create" Tweed.createTweedGetHandler ]
-      POST [ route "/tweed/create" (Tweed.tweedPostHandler documentStore) ] ]
+    [ GET [ route "/" Index.indexGetHandler ]
+      subRoute
+          "/tweed"
+          [ GET [ route "/create" Tweed.getCreateTweedHandler ]
+            POST [ route "/create" (Tweed.postCreateTweedHandler documentStore) ] ] ]
