@@ -99,6 +99,21 @@ module Tweed =
             Assert.NotEqual(HttpStatusCode.NotFound, response.StatusCode)
         }
 
+    [<Fact>]
+    let ``postCreateTweedHandler creates Tweed`` () =
+        let ctx = Substitute.For<HttpContext>()
+        let documentStore = Substitute.For<Raven.Client.Documents.IDocumentStore>()
+
+        let handler = HttpHandlers.Tweed.postCreateTweedHandler documentStore
+
+        task {
+            let! result = handler next ctx
+
+            match result with
+            | Some ctx -> ()
+            | None -> assertFail "Unexpected None result"
+        }
+
 // TODO
 // [<Fact>]
 // let ``POST /tweed/create returns 200 OK`` () =
