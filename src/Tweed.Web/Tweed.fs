@@ -6,6 +6,24 @@ open Giraffe.EndpointRouting
 open Tweed.Data
 open Tweed.Web.Views
 
+module Views =
+    open Giraffe.ViewEngine
+
+    let createTweedView text =
+        let value =
+            match text with
+            | Some(t) -> t
+            | None -> ""
+
+        [ titlePartial ()
+          form
+              [ _method "POST"; _upSubmit; _upLayer "parent" ]
+              [ label [ _for "text" ] []
+                textarea [ _rows "5"; _name "Text"; _value value ] []
+                button [ _type "submit" ] [ encodedText "Submit" ] ] ]
+        |> layout
+
+
 [<CLIMutable>]
 type CreateTweedDto = { Text: string }
 
@@ -21,7 +39,7 @@ let postCreateTweedHandler documentStore =
         }
 
 let getCreateTweedHandler: HttpHandler =
-    let view = Tweed.createTweedView None
+    let view = Views.createTweedView None
     htmlView view
 
 let endpoints documentStore =
