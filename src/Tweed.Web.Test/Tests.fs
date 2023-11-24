@@ -47,7 +47,7 @@ module Index =
         let ctx = Substitute.For<HttpContext>()
         ctx.Response.Body <- new MemoryStream()
 
-        let handler = HttpHandlers.Index.indexGetHandler
+        let handler = HttpHandlers.Feed.indexGetHandler
 
         task {
             let! result = handler next ctx
