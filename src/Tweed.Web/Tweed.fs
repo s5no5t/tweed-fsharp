@@ -6,6 +6,9 @@ open Giraffe.EndpointRouting
 open Tweed.Data
 open Tweed.Web.Views
 
+module ViewModels =
+    type TweedViewModel = { Content: string }
+
 module Views =
     open Giraffe.ViewEngine
 

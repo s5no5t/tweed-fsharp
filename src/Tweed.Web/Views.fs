@@ -2,11 +2,6 @@ module Tweed.Web.Views
 
 open Giraffe.ViewEngine
 
-module ViewModels =
-    type TweedViewModel = { Content: string }
-
-    type IndexViewModel = { Tweeds: TweedViewModel list }
-
 let _upSubmit = flag "up-submit"
 let _upLayer = attr "up-layer"
 
