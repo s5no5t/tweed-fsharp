@@ -1,7 +1,11 @@
 module Tweed.Web.Views
 
 open Giraffe.ViewEngine
-open ViewModels
+
+module ViewModels =
+    type TweedViewModel = { Content: string }
+
+    type IndexViewModel = { Tweeds: TweedViewModel list }
 
 let _upSubmit = flag "up-submit"
 let _upLayer = attr "up-layer"
@@ -19,7 +23,7 @@ let titlePartial () = h1 [] [ encodedText "Tweed.Web" ]
 
 
 module Index =
-    let indexGetView (model: IndexViewModel) =
+    let indexGetView (model: ViewModels.IndexViewModel) =
         [ titlePartial ()
           yield! model.Tweeds |> List.map (fun t -> div [] [ str t.Content ]) ]
         |> layout
@@ -33,7 +37,7 @@ module Tweed =
 
         [ titlePartial ()
           form
-              [ _method "POST"; _upSubmit; _upLayer "parent" ] 
+              [ _method "POST"; _upSubmit; _upLayer "parent" ]
               [ label [ _for "text" ] []
                 textarea [ _rows "5"; _name "Text"; _value value ] []
                 button [ _type "submit" ] [ encodedText "Submit" ] ] ]

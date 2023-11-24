@@ -5,12 +5,12 @@ open Microsoft.AspNetCore.Http
 open Giraffe
 open Giraffe.EndpointRouting
 open Tweed.Data
-open ViewModels
+open Tweed.Web.Views
 
 module Index =
     let indexGetHandler =
-        let tweedViewModel = { Content = "Some tweed" }
-        let indexViewModel = { Tweeds = [ tweedViewModel ] }
+        let tweedViewModel: ViewModels.TweedViewModel = { Content = "Some tweed" }
+        let indexViewModel: ViewModels.IndexViewModel = { Tweeds = [ tweedViewModel ] }
         let view = Views.Index.indexGetView indexViewModel
         htmlView view
 
