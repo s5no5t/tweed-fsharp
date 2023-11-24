@@ -2,6 +2,7 @@ module Tweed.Web.Tweed
 
 open Microsoft.AspNetCore.Http
 open Giraffe
+open Giraffe.EndpointRouting
 open Tweed.Data
 open Tweed.Web.Views
 
@@ -22,3 +23,9 @@ let postCreateTweedHandler documentStore =
 let getCreateTweedHandler: HttpHandler =
     let view = Tweed.createTweedView None
     htmlView view
+
+let endpoints documentStore =
+    [ subRoute
+          "/tweed"
+          [ GET [ route "/create" getCreateTweedHandler ]
+            POST [ route "/create" (postCreateTweedHandler documentStore) ] ] ]

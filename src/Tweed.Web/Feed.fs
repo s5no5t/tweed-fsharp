@@ -1,6 +1,7 @@
 module Tweed.Web.Feed
 
 open Giraffe
+open Giraffe.EndpointRouting
 open Microsoft.AspNetCore.Http
 open Tweed.Web.Views
 
@@ -10,3 +11,5 @@ let indexGetHandler: HttpHandler =
         let indexViewModel: ViewModels.IndexViewModel = { Tweeds = [ tweedViewModel ] }
         let view = Index.indexGetView indexViewModel
         htmlView view next ctx
+
+let endpoints documentStore = [ GET [ route "/" indexGetHandler ] ]
